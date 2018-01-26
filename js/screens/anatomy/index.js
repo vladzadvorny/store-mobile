@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import {
   Container,
   Header,
@@ -12,19 +12,28 @@ import {
   Left,
   Right,
   Body
-} from "native-base";
+} from 'native-base';
+import { graphql, compose } from 'react-apollo';
 
-import styles from "./styles";
+import styles from './styles';
+import { BotsQuery } from '../../graphql/queries';
 
 class Anatomy extends Component {
   render() {
+    const { botsQuery } = this.props;
+    if (botsQuery.loading) {
+      return null;
+    } else {
+      console.log(botsQuery);
+    }
+
     return (
       <Container style={styles.container}>
         <Header>
           <Left>
             <Button
               transparent
-              onPress={() => this.props.navigation.navigate("DrawerOpen")}
+              onPress={() => this.props.navigation.navigate('DrawerOpen')}
             >
               <Icon name="ios-menu" />
             </Button>
@@ -36,7 +45,7 @@ class Anatomy extends Component {
         </Header>
 
         <Content padder>
-          <Text>Content goes here</Text>
+          {/* {botsQuery.bots.map(bot => <Text>{bot.name}</Text>)} */}
         </Content>
 
         <Footer>
@@ -51,4 +60,12 @@ class Anatomy extends Component {
   }
 }
 
-export default Anatomy;
+export default compose(
+  graphql(BotsQuery, {
+    name: 'botsQuery',
+    fetchPolicy: 'network-only',
+    options: () => ({
+      variables: { skip: 0, limit: 12 }
+    })
+  })
+)(Anatomy);
