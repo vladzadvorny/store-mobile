@@ -13,18 +13,18 @@ import {
   Right,
   Body
 } from 'native-base';
-import { graphql, compose } from 'react-apollo';
+import { graphql } from 'react-apollo';
+import gql from 'graphql-tag';
 
 import styles from './styles';
-import { BotsQuery } from '../../graphql/queries';
 
 class Anatomy extends Component {
   render() {
-    const { botsQuery } = this.props;
-    if (botsQuery.loading) {
+    const { data } = this.props;
+    if (data.loading) {
       return null;
     } else {
-      console.log(botsQuery);
+      console.log(data);
     }
 
     return (
@@ -45,7 +45,7 @@ class Anatomy extends Component {
         </Header>
 
         <Content padder>
-          {/* {botsQuery.bots.map(bot => <Text>{bot.name}</Text>)} */}
+          {/* {data.bots.map(bot => <Text>{bot.name}</Text>)} */}
         </Content>
 
         <Footer>
@@ -60,12 +60,24 @@ class Anatomy extends Component {
   }
 }
 
-export default compose(
-  graphql(BotsQuery, {
-    name: 'botsQuery',
-    fetchPolicy: 'network-only',
-    options: () => ({
-      variables: { skip: 0, limit: 12 }
-    })
+const BotsQuery = gql`
+  query($skip: Int, $limit: Int) {
+    bots(skip: $skip, limit: $limit) {
+      id
+      name
+      description
+      image {
+        id
+        path
+        name
+      }
+      rating
+    }
+  }
+`;
+
+export default graphql(BotsQuery, {
+  options: () => ({
+    variables: { skip: 0, limit: 12 }
   })
-)(Anatomy);
+})(Anatomy);

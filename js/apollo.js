@@ -13,14 +13,14 @@ const httpLink = new HttpLink({ uri });
 
 const middlewareLink = setContext(async () => ({
   headers: {
-    'x-token': await AsyncStorage.getItem('@token'),
-    'x-refresh-token': await AsyncStorage.getItem('@refreshToken'),
+    'x-token': await AsyncStorage.getItem('@Auth:token'),
+    'x-refresh-token': await AsyncStorage.getItem('@Auth:refreshToken'),
     'x-locale': await AsyncStorage.getItem('@locale')
   }
 }));
 
 const afterwareLink = new ApolloLink((operation, forward) =>
-  forward(operation).map(async response => {
+  forward(operation).map(response => {
     const { response: { headers } } = operation.getContext();
     if (headers) {
       const token = headers.get('x-token');
@@ -29,18 +29,18 @@ const afterwareLink = new ApolloLink((operation, forward) =>
       if (token) {
         console.log(token);
         if (token !== 'remove') {
-          await AsyncStorage.setItem('@token', token);
+          AsyncStorage.setItem('@Auth:token', token);
         } else {
-          await AsyncStorage.removeItem('@token');
+          AsyncStorage.removeItem('@Auth:token');
           store.dispatch(signOut());
         }
       }
 
       if (refreshToken) {
         if (refreshToken !== 'remove') {
-          await AsyncStorage.setItem('@refreshToken', refreshToken);
+          AsyncStorage.setItem('@Auth:refreshToken', refreshToken);
         } else {
-          await AsyncStorage.removeItem('@refreshToken');
+          AsyncStorage.removeItem('@Auth:refreshToken');
           store.dispatch(signOut());
         }
       }
